@@ -4,35 +4,69 @@ represents an instance of a Model.
 model : Model
 modelMatrix : UniformMat4
 worldMatrix : UniformMat4
-***METHODS***
-render(gl, program)
-setWorldMatrix(matrix)
-centerMatrix()
-centerAxisTranslateAmount(l, r)
-scaleLongestSizeToOne()
+worldMatrixScale : mat4
+worldMatrixTranslate : mat4
+worldMatrixRotate : mat4
+worldMatrixChanged : boolean
+width : number
+height : number
+depth : number
+x : number
+y : number
+z : number
+yRot : number
 */
 function Entity(model, gl, program){
   this.model = model;
 
 	let ms = this.scaleLongestSizeToOne();
 	let mt = this.centerMatrix();
-	let modelMatrixVal = mult(ms, mt);
+  let modelMatrixVal = mult(ms, mt);
 	this.modelMatrix = new UniformMat4("modelMatrix", modelMatrixVal, gl, program);
 	this.modelMatrix.send(gl);
-	//
+  //
+  this.worldMatrixScale = mat4();
+  this.worldMatrixTranslate = mat4();
+  this.worldMatrixRotate = mat4();
 	this.worldMatrix = new UniformMat4("worldMatrix", mat4(), gl, program);
-	this.worldMatrix.send(gl);
+  this.worldMatrix.send(gl);
+  this.worldMatrixChanged = false;
+  
+  this.width = this.height = this.depth = 1;
+  this.x = this.z = this.y = 0;
+  this.yRot = 0;
 }
 
 Entity.prototype.render = function(gl, program){
-	// TODO: dont need to send these every time
-	this.modelMatrix.send(gl);
-	this.worldMatrix.send(gl);
+  if(this.worldMatrixChanged){
+    this.worldMatrix.val = mult(this.worldMatrixTranslate, mult(this.worldMatrixRotate, this.worldMatrixScale));
+    this.worldMatrixChanged = false;
+  }
+  this.modelMatrix.send(gl);
+  this.worldMatrix.send(gl);
 	this.model.render(gl, program);
 }
 
-Entity.prototype.setWorldMatrix = function(matrix){
-	this.worldMatrix.val = matrix;
+Entity.prototype.setSize = function(size){
+  this.worldMatrixScale = scalem(size, size, size);
+  this.height = this.model.mesh.relativeHeight*size;
+  this.width = this.model.mesh.relativeWidth*size;
+  this.depth = this.model.mesh.relativeDepth*size;
+	this.worldMatrixChanged = true;
+}
+
+Entity.prototype.setLocation = function(x, y, z){
+  this.worldMatrixTranslate = translate(x, y, z);
+  this.x = x;
+  this.y = y;
+  this.z = z;
+  this.worldMatrixChanged = true;
+}
+
+Entity.prototype.setYRotation = function(rot){
+  this.yRot = rot;
+  this.worldMatrixRotate = rotate(this.yRot, [0,1,0]);
+  this.worldMatrixChanged = true;
 }
 
 Entity.prototype.centerMatrix = function(){

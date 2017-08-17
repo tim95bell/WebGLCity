@@ -59,6 +59,8 @@ Ks 0.082500 0.082500 0.082500
 Ni 1.000000
 d 1.000000
 illum 2
+# added the line bellow
+map_Kd car_4.tga
 
 newmtl material5
 Ns 37.254902

@@ -21,7 +21,7 @@ function MtlMaterials(fileName, gl){
   		let lineSplit = line.split(" ");
   		if(lineSplit[0] === "newmtl"){
   			if(currentMaterialString != null){
-  				this.materials[currentMaterialString] = currentMaterial;
+				  this.materials[currentMaterialString] = currentMaterial;
   			}
   			currentMaterialString = lineSplit[1];
   			currentMaterial = new Material();
@@ -63,12 +63,12 @@ function MtlMaterials(fileName, gl){
   			let textureString = lineSplit[1];
   			if(textures[textureString] == null){
   				textures[textureString] = new TgaTexture("Assets/textures/"+textureString, gl);
-  			}
+			  }
   			currentMaterial.setTexture( textures[textureString] );
   		} 
   	}
   	if(currentMaterialString != null){
-  		this.materials[currentMaterialString] = currentMaterial;
+		  this.materials[currentMaterialString] = currentMaterial;
   	}
 }
 
